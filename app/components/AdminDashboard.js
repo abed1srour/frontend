@@ -18,6 +18,8 @@ function AdminDashboard() {
 
   const router = useRouter();
 
+
+
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
@@ -39,7 +41,7 @@ function AdminDashboard() {
   }, [filter]);
   const formatPhoneForWhatsApp = (phone) => {
     if (!phone) return "";
-    const cleaned = phone.replace(/\s+/g, ""); // Remove spaces
+    const cleaned = phone.replace(/\s+/g, ""); // remove spaces
     return cleaned.startsWith("+")
       ? cleaned.replace("+", "")
       : "961" + cleaned;
@@ -246,17 +248,24 @@ function AdminDashboard() {
                 {/* Status Buttons */}
                 <div className="flex flex-wrap gap-2 justify-end mt-2">
                   {c.phone && (
-                    <a
-                      href={`https://wa.me/${formatPhoneForWhatsApp(c.phone)}?text=${encodeURIComponent(
-                        "شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت."
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => {
+                        const number = formatPhoneForWhatsApp(c.phone);
+                        const message = "شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت.";
+                        const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+                        const win = window.open(url, "_blank");
+
+                        // Auto close the window after 4 seconds
+                        setTimeout(() => {
+                          if (win) win.close();
+                        }, 4000);
+                      }}
                       className="text-xs px-2 py-1 rounded border border-green-500 text-green-700 hover:bg-green-50 ms-auto"
                     >
                       إرسال رد عبر واتساب
-                    </a>
+                    </button>
                   )}
+
                   {Object.keys(statusIcons).map((s) => (
                     <button
                       key={s}
