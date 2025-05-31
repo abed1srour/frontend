@@ -39,9 +39,12 @@ function AdminDashboard() {
   }, [filter]);
   const formatPhoneForWhatsApp = (phone) => {
     if (!phone) return "";
-    const clean = phone.replace(/\s+/g, ""); // Remove spaces
-    return clean.startsWith("+") ? clean.replace("+", "") : "961" + clean;
+    const cleaned = phone.replace(/\s+/g, ""); // Remove spaces
+    return cleaned.startsWith("+")
+      ? cleaned.replace("+", "")
+      : "961" + cleaned;
   };
+
 
 
   const updateStatus = async (id) => {
@@ -239,8 +242,21 @@ function AdminDashboard() {
 
 
 
+
                 {/* Status Buttons */}
                 <div className="flex flex-wrap gap-2 justify-end mt-2">
+                  {c.phone && (
+                    <a
+                      href={`https://wa.me/${formatPhoneForWhatsApp(c.phone)}?text=${encodeURIComponent(
+                        "شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت."
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-2 py-1 rounded border border-green-500 text-green-700 hover:bg-green-50 ms-auto"
+                    >
+                      إرسال رد عبر واتساب
+                    </a>
+                  )}
                   {Object.keys(statusIcons).map((s) => (
                     <button
                       key={s}
@@ -249,8 +265,8 @@ function AdminDashboard() {
                         setShowConfirm(c._id);
                       }}
                       className={`text-xs px-2 py-1 rounded border ${c.status === s
-                          ? "bg-blue-700 text-white"
-                          : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                        ? "bg-blue-700 text-white"
+                        : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                         }`}
                     >
                       {s === "new"
@@ -263,19 +279,8 @@ function AdminDashboard() {
                     </button>
                   ))}
 
-                  {/* WhatsApp Reply Button */}
-                  {c.phone && (
-                    <a
-                      href={`https://wa.me/${formatPhoneForWhatsApp(c.phone)}?text=${encodeURIComponent(
-                        "شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت."
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 rounded border border-green-500 text-green-700 hover:bg-green-50"
-                    >
-                      إرسال رد عبر واتساب
-                    </a>
-                  )}
+
+
 
                   <button
                     onClick={() => setHideConfirm(c._id)}
