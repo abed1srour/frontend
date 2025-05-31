@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+
 import {
   Menu, X, Loader, CheckCircle, AlertCircle, AlertTriangle, Clock,
   Image as ImageIcon, LogOut, MapPin, Phone, FileText, EyeOff, Eye, Download
@@ -342,17 +345,25 @@ function AdminDashboard() {
                 >
                   <X className="w-5 h-5" />
                 </button>
+
                 <button
-                  onClick={() => {
-                    previewImages.forEach((img) => {
-                      const link = document.createElement("a");
-                      link.href = `${process.env.NEXT_PUBLIC_API_URL}/download/${encodeURIComponent(img)}`;
-                      link.download = img;
-                      link.target = "_blank";
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    });
+                  onClick={async () => {
+                    const zip = new JSZip();
+
+                    await Promise.all(
+                      previewImages.map(async (img) => {
+                        try {
+                          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/uploads/${encodeURIComponent(img)}`);
+                          const blob = await res.blob();
+                          zip.file(img, blob);
+                        } catch (error) {
+                          console.error("Failed to fetch image:", img);
+                        }
+                      })
+                    );
+
+                    const zipBlob = await zip.generateAsync({ type: "blob" });
+                    saveAs(zipBlob, "الصور_المرفقة.zip");
                   }}
                   className="text-white bg-blue-600 hover:bg-blue-700 p-1 rounded flex items-center gap-1 text-sm"
                 >
@@ -360,6 +371,7 @@ function AdminDashboard() {
                   تحميل الكل
                 </button>
               </div>
+
 
               <h3 className="text-lg font-semibold mb-4 text-black border-b pb-2 text-right">الصور المرفقة</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
