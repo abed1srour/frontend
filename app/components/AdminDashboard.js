@@ -248,18 +248,18 @@ function AdminDashboard() {
                 {/* Status Buttons */}
                 <div className="flex flex-wrap gap-2 justify-end mt-2">
                   {c.phone && (
-                    <button
-                      onClick={() => {
-                        const number = formatPhoneForWhatsApp(c.phone);
-                        const message = "شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت.";
-                        const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-                        window.open(url, "_blank");
-                      }}
+                    <a
+                      href={`https://wa.me/${formatPhoneForWhatsApp(c.phone)}?text=${encodeURIComponent(
+                        "شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت."
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-xs px-2 py-1 rounded border border-green-500 text-green-700 hover:bg-green-50"
                     >
                       إرسال رد عبر واتساب
-                    </button>
+                    </a>
                   )}
+
 
 
                   {Object.keys(statusIcons).map((s) => (
