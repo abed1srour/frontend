@@ -8,7 +8,7 @@ import {
 
 function AdminDashboard() {
   const [complaints, setComplaints] = useState([]);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("new");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [previewImages, setPreviewImages] = useState([]);
@@ -79,7 +79,6 @@ function AdminDashboard() {
     router.push("/admin/nova");
   };
 
-
   const downloadAllImages = () => {
     previewImages.forEach((img) => {
       const link = document.createElement("a");
@@ -92,10 +91,30 @@ function AdminDashboard() {
   };
 
   const statusIcons = {
-    new: <><AlertCircle className="w-4 h-4 text-black" /> <span className="text-sm">جديدة</span></>,
-    "in-progress": <><Clock className="w-4 h-4 text-black" /> <span className="text-sm">قيد المعالجة</span></>,
-    resolved: <><CheckCircle className="w-4 h-4 text-black" /> <span className="text-sm">تم الحل</span></>,
-    ignored: <><AlertTriangle className="w-4 h-4 text-black" /> <span className="text-sm">تم التجاهل</span></>,
+    new: (
+      <>
+        <AlertCircle className="w-4 h-4 text-green-600" />
+        <span className="text-sm text-green-700">جديدة</span>
+      </>
+    ),
+    "in-progress": (
+      <>
+        <Clock className="w-4 h-4 text-yellow-500" />
+        <span className="text-sm text-yellow-600">قيد المعالجة</span>
+      </>
+    ),
+    resolved: (
+      <>
+        <CheckCircle className="w-4 h-4 text-blue-600" />
+        <span className="text-sm text-blue-700">تم الحل</span>
+      </>
+    ),
+    ignored: (
+      <>
+        <AlertTriangle className="w-4 h-4 text-red-600" />
+        <span className="text-sm text-red-700">تم التجاهل</span>
+      </>
+    ),
   };
 
   const filteredComplaints = filter === "all"
@@ -118,7 +137,17 @@ function AdminDashboard() {
               onClick={() => setFilter(s)}
               className={`w-full text-right px-4 py-2 rounded ${filter === s ? "bg-blue-100" : "hover:bg-blue-50"}`}
             >
-              {s === "all" ? "الكل" : s === "new" ? "جديدة" : s === "in-progress" ? "قيد المعالجة" : s === "resolved" ? "تم الحل" : "تم التجاهل"}
+              {s === "new"
+                ? "جديدة"
+                : s === "in-progress"
+                  ? "قيد المعالجة"
+                  : s === "resolved"
+                    ? "تم الحل"
+                    : s === "ignored"
+                      ? "تم التجاهل"
+                      : s === "all"
+                        ? "الكل"
+                        : ""}
             </button>
           ))}
           <div className="mt-4 border-t pt-4">
@@ -139,12 +168,21 @@ function AdminDashboard() {
 
       {/* Main */}
       <div className="flex-1 p-6 lg:mr-64">
-        <div className="flex items-center justify-between mb-6 flex-row-reverse">
-          <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+        <div className="relative mb-6">
+          {/* Sidebar toggle button (top left on small screens) */}
+          <button
+            className="lg:hidden absolute right-4 top-1/2 -translate-y-1/2"
+            onClick={() => setSidebarOpen(true)}
+          >
             <Menu className="w-6 h-6 text-blue-700" />
           </button>
-          <h1 className="text-2xl font-bold text-blue-900">صندوق شكاوى البازورية</h1>
+
+          {/* Centered heading */}
+          <h1 className="text-2xl font-bold text-blue-900 text-center">
+            صندوق شكاوى البازورية
+          </h1>
         </div>
+
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
@@ -257,7 +295,7 @@ function AdminDashboard() {
                   onClick={() => {
                     previewImages.forEach((img) => {
                       const link = document.createElement("a");
-                      link.href = `http://localhost:5000/download/${encodeURIComponent(img)}`;
+                      link.href = `${process.env.NEXT_PUBLIC_API_URL}/download/${encodeURIComponent(img)}`;
                       link.download = img;
                       link.target = "_blank";
                       document.body.appendChild(link);
@@ -277,12 +315,14 @@ function AdminDashboard() {
                 {previewImages.map((img, i) => (
                   <div key={i} className="relative group">
                     <img
-                      src={`http://localhost:5000/uploads/${img}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${img}`} // ✅ dynamic backend path
                       alt={`صورة ${i + 1}`}
                       className="w-full h-48 object-cover rounded border"
                     />
                   </div>
                 ))}
+
+
               </div>
             </div>
           </div>

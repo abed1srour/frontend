@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Plus, Camera, Folder } from "lucide-react";
-import { useRouter } from 'next/navigation';
-
+import { useRouter } from "next/navigation";
 
 export default function ComplaintForm() {
   const [form, setForm] = useState({
@@ -33,13 +32,19 @@ export default function ComplaintForm() {
   };
   const router = useRouter();
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (submitting) return; // ⛔ Prevent double submission
+    setSubmitting(true); // 🔒 Lock while submitting
+
     const formData = new FormData();
 
     Object.entries(form).forEach(([key, value]) => {
-      if (key !== "photos") {
-        if (value) formData.append(key, value);
+      if (key !== "photos" && value) {
+        formData.append(key, value);
       }
     });
 
@@ -48,24 +53,28 @@ export default function ComplaintForm() {
     });
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints`, {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/complaints`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await res.json();
 
       if (res.ok) {
-        router.push("/complaints/success"); // ✅ Make sure this route exists
+        router.push("/complaints/success");
       } else {
         alert(data.message || "❌ فشل في إرسال الشكوى.");
       }
     } catch (err) {
       console.error("Fetch error:", err);
       alert("❌ تعذر الاتصال بالخادم.");
+    } finally {
+      setSubmitting(false); // 🔓 Unlock after attempt
     }
   };
-
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-800 px-4">
@@ -80,7 +89,9 @@ export default function ComplaintForm() {
           encType="multipart/form-data"
         >
           <div>
-            <label className="block mb-1 font-semibold">الفئة</label>
+            <label className="block mb-1 font-semibold">
+              الفئة <span className="text-red-600">*</span>
+            </label>
             <select
               name="category"
               value={form.category}
@@ -98,12 +109,18 @@ export default function ComplaintForm() {
               <option>ازدحام مروري</option>
               <option>مخالفات بناء</option>
               <option>نقص خدمات</option>
+              <option>كهرباء</option>
+              <option>مياه الصرف الصحي</option>
+              <option>حدائق ومتنزهات</option>
+              <option>حيوانات ضالة</option>
               <option>أخرى</option>
             </select>
           </div>
 
           <div>
-            <label className="block mb-1 font-semibold">الموقع</label>
+            <label className="block mb-1 font-semibold">
+              الموقع <span className="text-red-600">*</span>
+            </label>
             <input
               type="text"
               name="location"
@@ -116,7 +133,9 @@ export default function ComplaintForm() {
           </div>
 
           <div>
-            <label className="block mb-1 font-semibold">محتوى الشكوى</label>
+            <label className="block mb-1 font-semibold">
+              محتوى الشكوى <span className="text-red-600">*</span>
+            </label>
             <textarea
               name="message"
               value={form.message}
@@ -129,7 +148,9 @@ export default function ComplaintForm() {
           </div>
 
           <div>
-            <label className="block mb-1 font-semibold">رقم الهاتف (اختياري)</label>
+            <label className="block mb-1 font-semibold">
+              رقم الهاتف (اختياري)
+            </label>
             <input
               type="text"
               name="phone"
@@ -164,7 +185,9 @@ export default function ComplaintForm() {
                 className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:bg-gray-100 transition text-center"
               >
                 <Camera className="w-7 h-7 text-gray-400" />
-                <span className="text-sm text-gray-500 mt-1">استخدام الكاميرا</span>
+                <span className="text-sm text-gray-500 mt-1">
+                  استخدام الكاميرا
+                </span>
               </label>
               <input
                 type="file"
@@ -198,16 +221,22 @@ export default function ComplaintForm() {
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 mt-2">عدد الصور: {form.photos.length}</p>
+                <p className="text-xs text-gray-500 mt-2">
+                  عدد الصور: {form.photos.length}
+                </p>
               </div>
             )}
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-800 hover:bg-blue-900 text-white font-semibold py-3 px-4 rounded"
+            disabled={submitting}
+            className={`w-full py-3 px-4 rounded font-semibold text-white ${submitting
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-blue-800 hover:bg-blue-900"
+              }`}
           >
-            إرسال
+            {submitting ? "جاري الإرسال..." : "إرسال"}
           </button>
         </form>
       </div>
