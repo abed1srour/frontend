@@ -342,6 +342,8 @@ function AdminDashboard() {
         {previewImages.length > 0 && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded shadow-lg max-w-4xl w-full relative">
+
+              {/* Close & Download Buttons */}
               <div className="absolute top-2 left-2 flex items-center gap-2">
                 <button
                   onClick={() => setPreviewImages([])}
@@ -353,19 +355,18 @@ function AdminDashboard() {
                 <button
                   onClick={async () => {
                     const zip = new JSZip();
-
                     await Promise.all(
                       previewImages.map(async (img) => {
                         try {
                           const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/uploads/${encodeURIComponent(img)}`);
+                          if (!res.ok) throw new Error("Image not found");
                           const blob = await res.blob();
                           zip.file(img, blob);
                         } catch (error) {
-                          console.error("Failed to fetch image:", img);
+                          console.error("❌ Failed to fetch image:", img);
                         }
                       })
                     );
-
                     const zipBlob = await zip.generateAsync({ type: "blob" });
                     saveAs(zipBlob, "الصور_المرفقة.zip");
                   }}
@@ -376,24 +377,26 @@ function AdminDashboard() {
                 </button>
               </div>
 
-
+              {/* Title */}
               <h3 className="text-lg font-semibold mb-4 text-black border-b pb-2 text-right">الصور المرفقة</h3>
+
+              {/* Images Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
                 {previewImages.map((img, i) => (
                   <div key={i} className="relative group">
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${img}`} // ✅ dynamic backend path
+                      src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${encodeURIComponent(img)}`}
                       alt={`صورة ${i + 1}`}
                       className="w-full h-48 object-cover rounded border"
+                      onError={(e) => (e.currentTarget.src = "/fallback.png")} // fallback image
                     />
                   </div>
                 ))}
-
-
               </div>
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
