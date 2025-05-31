@@ -251,17 +251,21 @@ function AdminDashboard() {
                 {/* Status Buttons */}
                 <div className="flex flex-wrap gap-2 justify-end mt-2">
                   {c.phone && (
-                    <a
-                      href={`https://wa.me/${formatPhoneForWhatsApp(c.phone)}?text=${encodeURIComponent(
-                        "شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت."
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs px-2 py-1 rounded border border-green-500 text-green-700 hover:bg-green-50"
+                    <button
+                      onClick={() => {
+                        const raw = c.phone.trim();
+                        const clean = raw.replace(/\s+/g, "");
+                        const number = clean.startsWith("+") ? clean.slice(1) : (clean.startsWith("961") ? clean : `961${clean}`);
+                        const message = "شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت.";
+                        const url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+                        window.open(url, "_blank");
+                      }}
+                      className="text-xs px-2 py-1 rounded border border-green-500 text-green-700 hover:bg-green-50 ms-auto"
                     >
                       إرسال رد عبر واتساب
-                    </a>
+                    </button>
                   )}
+
 
 
 
