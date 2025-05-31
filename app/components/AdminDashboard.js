@@ -230,6 +230,18 @@ function AdminDashboard() {
                     <ImageIcon className="w-4 h-4" /> عرض الصور
                   </button>
                 )}
+                {/* WhatsApp Reply Button */}
+                {c.phone && (
+                  <a
+                    href={`https://wa.me/961${c.phone}?text=${encodeURIComponent("شكرًا لتواصلكم. تم استلام الشكوى وسنعمل على حلّها بأقرب وقت.")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-sm text-green-600 hover:text-green-800 hover:underline mb-2"
+                  >
+                    إرسال رد عبر واتساب
+                  </a>
+                )}
+
 
                 {/* Status Buttons */}
                 <div className="flex flex-wrap gap-2 justify-end mt-2">
